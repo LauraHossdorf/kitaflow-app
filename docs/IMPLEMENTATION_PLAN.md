@@ -24,3 +24,6 @@ Qualifikationsdefinition, Alters-/Gruppengewichtung, Bezugszeiträume, Datenqual
 ## GitHub
 Arbeitsbranch codex/kitaflow-foundation → Pull Request nach develop → Prüfung und Merge. main bleibt für freigegebene Stände. Ein Merge ist keine Veröffentlichung.
 
+
+## Fortschritt: Leitungs-Konfiguration
+Leitungslogin mit scrypt-Passwortprüfung, Datenbank-Sitzungen und zeitweiliger Kontosperre, Kita-Name, Gruppen, Personal, Kinder sowie Gruppenzuordnung sind umgesetzt. Server Actions prüfen bei jeder Änderung die Leitungsmitgliedschaft und die Kita-Zugehörigkeit der betroffenen Objekte. Audit-Einträge werden gemeinsam mit Änderungen gespeichert. Bootstrap-Zugang per privater Umgebung, keine öffentliche Registrierung. Mitarbeitenden-/Elternoberflächen und Einladungen bleiben Folgearbeit. Die Konfiguration arbeitet derzeit mit Server Actions statt öffentlichen CRUD-API-Endpunkten. Siehe KITA_CONFIGURATION.md.

@@ -25,6 +25,10 @@ model User {
  id String @id @default(cuid())
  email String @unique
  name String?
+ passwordHash String?
+ failedLoginAttempts Int @default(0)
+ lockedUntil DateTime?
+ sessions Session[]
  memberships Membership[]
  guardians Guardian[]
  createdAt DateTime @default(now())
@@ -54,6 +58,9 @@ model Group {
  name String
  kita Kita @relation(fields: [kitaId], references: [id])
  children Child[]
+ staff Staff[]
+ plannedPlaces Int?
+ usualStaff Int?
  @@unique([kitaId, name])
 }
 model Child {
@@ -78,6 +85,8 @@ model Staff {
  kitaId String
  name String
  qualification String?
+ groupId String?
+ group Group? @relation(fields: [groupId], references: [id])
  kita Kita @relation(fields: [kitaId], references: [id])
  availability StaffAvailability[]
 }
@@ -167,3 +176,12 @@ model AuditEvent {
  @@index([kitaId, createdAt])
 }
 
+
+model Session {
+ id String @id @default(cuid())
+ userId String
+ tokenHash String @unique
+ expiresAt DateTime
+ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ @@index([expiresAt])
+}

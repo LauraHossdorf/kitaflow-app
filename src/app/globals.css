@@ -17,7 +17,7 @@ a, button, .hover-surface {
 }
 
 @media (hover: hover) {
-  a:hover, button:not(:disabled):hover, .hover-surface:hover {
+  a:hover, button:not(:disabled):hover, input:not([type="hidden"]):hover, select:hover, .hover-surface:hover {
     background-color: var(--app-hover);
   }
 }
@@ -33,3 +33,14 @@ a:focus-visible, button:focus-visible {
     transition: none;
   }
 }
+
+
+input:not([type="hidden"]), select { display:block; width:100%; margin-top:0.4rem; border:1px solid #b6c6b8; border-radius:0.75rem; background:white; padding:0.75rem; color:#18382f; }
+input:focus-visible, select:focus-visible { outline:3px solid #386e59; outline-offset:2px; background:var(--app-hover); }
+.action-button { display:inline-block; border:1px solid #386e59; border-radius:0.75rem; padding:0.75rem 1rem; background:#f3f8ee; font-weight:600; cursor:pointer; }
+.action-button:disabled { opacity:0.6; cursor:wait; }
+.config-section { margin-top:2rem; border-radius:1.5rem; background:white; padding:1.5rem; scroll-margin-top:1rem; }
+.config-section h2 { font-size:1.5rem; font-weight:600; margin-bottom:1rem; }
+.config-form { display:grid; gap:1rem; }
+.config-form h3 { font-weight:600; }
+@media(min-width:640px) { .config-form { grid-template-columns:repeat(2,minmax(0,1fr)); align-items:end; } .config-form h3 { grid-column:1/-1; } }
