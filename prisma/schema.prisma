@@ -1,0 +1,169 @@
+generator client {
+ provider = "prisma-client-js"
+}
+datasource db {
+ provider = "postgresql"
+ url = env("DATABASE_URL")
+}
+enum Role {
+ DIRECTOR
+ STAFF
+ PARENT
+}
+enum PreferenceValue {
+ CAN_STAY_HOME
+ CANNOT_STAY_HOME
+ UNKNOWN
+}
+enum EmergencyStatus {
+ DRAFT
+ REQUESTED
+ CONFIRMED
+ CLOSED
+}
+model User {
+ id String @id @default(cuid())
+ email String @unique
+ name String?
+ memberships Membership[]
+ guardians Guardian[]
+ createdAt DateTime @default(now())
+}
+model Kita {
+ id String @id @default(cuid())
+ name String
+ memberships Membership[]
+ groups Group[]
+ staff Staff[]
+ rules RuleVersion[]
+ emergencies Emergency[]
+ createdAt DateTime @default(now())
+}
+model Membership {
+ id String @id @default(cuid())
+ userId String
+ kitaId String
+ role Role
+ user User @relation(fields: [userId], references: [id])
+ kita Kita @relation(fields: [kitaId], references: [id])
+ @@unique([userId, kitaId])
+}
+model Group {
+ id String @id @default(cuid())
+ kitaId String
+ name String
+ kita Kita @relation(fields: [kitaId], references: [id])
+ children Child[]
+ @@unique([kitaId, name])
+}
+model Child {
+ id String @id @default(cuid())
+ groupId String
+ name String
+ group Group @relation(fields: [groupId], references: [id])
+ guardians Guardian[]
+ preferences ParentPreference[]
+ responses EmergencyResponse[]
+ decisions CareDecision[]
+}
+model Guardian {
+ userId String
+ childId String
+ user User @relation(fields: [userId], references: [id])
+ child Child @relation(fields: [childId], references: [id])
+ @@id([userId, childId])
+}
+model Staff {
+ id String @id @default(cuid())
+ kitaId String
+ name String
+ qualification String?
+ kita Kita @relation(fields: [kitaId], references: [id])
+ availability StaffAvailability[]
+}
+model StaffAvailability {
+ id String @id @default(cuid())
+ staffId String
+ startsAt DateTime
+ endsAt DateTime
+ available Boolean
+ staff Staff @relation(fields: [staffId], references: [id])
+ @@index([staffId, startsAt])
+}
+model ParentPreference {
+ id String @id @default(cuid())
+ childId String
+ authorUserId String
+ startsAt DateTime
+ endsAt DateTime
+ value PreferenceValue
+ child Child @relation(fields: [childId], references: [id])
+ createdAt DateTime @default(now())
+ @@index([childId, startsAt])
+}
+model RuleVersion {
+ id String @id @default(cuid())
+ kitaId String
+ version Int
+ engineVersion String @default("1")
+ configuration Json
+ approvedAt DateTime?
+ approvedByUserId String?
+ kita Kita @relation(fields: [kitaId], references: [id])
+ evaluations Evaluation[]
+ createdAt DateTime @default(now())
+ @@unique([kitaId, version])
+}
+model Evaluation {
+ id String @id @default(cuid())
+ ruleVersionId String
+ inputSnapshot Json
+ result Json
+ engineVersion String
+ ruleVersion RuleVersion @relation(fields: [ruleVersionId], references: [id])
+ createdAt DateTime @default(now())
+}
+model Emergency {
+ id String @id @default(cuid())
+ kitaId String
+ startsAt DateTime
+ endsAt DateTime
+ status EmergencyStatus @default(DRAFT)
+ kita Kita @relation(fields: [kitaId], references: [id])
+ responses EmergencyResponse[]
+ decisions CareDecision[]
+ createdAt DateTime @default(now())
+}
+model EmergencyResponse {
+ id String @id @default(cuid())
+ emergencyId String
+ childId String
+ authorUserId String
+ value PreferenceValue
+ emergency Emergency @relation(fields: [emergencyId], references: [id])
+ child Child @relation(fields: [childId], references: [id])
+ updatedAt DateTime @updatedAt
+ @@unique([emergencyId, childId, authorUserId])
+}
+model CareDecision {
+ id String @id @default(cuid())
+ emergencyId String
+ childId String
+ decidedByUserId String
+ receivesCare Boolean
+ reason String
+ emergency Emergency @relation(fields: [emergencyId], references: [id])
+ child Child @relation(fields: [childId], references: [id])
+ createdAt DateTime @default(now())
+ @@unique([emergencyId, childId])
+}
+model AuditEvent {
+ id String @id @default(cuid())
+ kitaId String
+ actorUserId String
+ action String
+ entityId String
+ createdAt DateTime @default(now())
+ @@index([kitaId, createdAt])
+}
+
